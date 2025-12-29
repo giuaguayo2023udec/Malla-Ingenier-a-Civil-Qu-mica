@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Malla Curricular - Giulianna Aguayo Espinoza</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f6f6;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.stats {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.semester {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.semester h2 {
+    text-align: center;
+    font-size: 18px;
+}
+
+.course {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+/* Estados */
+.available { background: #b266ff; color: white; }  /* morado */
+.completed { background: #ff8acb; color: white; }  /* rosado */
+.locked { background: #ccc; color: #555; cursor: not-allowed; }
+.coreq { background: #7ecbff; color: #003; }
+
+.course:hover { opacity: 0.85; }
+</style>
+</head>
+
+<body>
+
+<h1>Malla Curricular – Giulianna Aguayo Espinoza<br>Ingeniería Civil Química</h1>
+
+<div class="stats" id="stats"></div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const courses = [
+/* SEMESTRE 1 */
+{ id:"fis1", name:"Física I", credits:4, sem:1, pre:[], co:[] },
+{ id:"alg1", name:"Álgebra I", credits:5, sem:1, pre:[], co:[] },
+{ id:"cal1", name:"Cálculo I", credits:5, sem:1, pre:[], co:[] },
+{ id:"qui1", name:"Química General I", credits:5, sem:1, pre:[], co:[] },
+{ id:"introIQ", name:"Introducción a la Ingeniería Química", credits:2, sem:1, pre:[], co:[] },
+
+/* SEMESTRE 2 */
+{ id:"fis2", name:"Física II", credits:4, sem:2, pre:["fis1"], co:[] },
+{ id:"alg2", name:"Álgebra II", credits:5, sem:2, pre:["alg1"], co:[] },
+{ id:"cal2", name:"Cálculo II", credits:5, sem:2, pre:["cal1"], co:[] },
+{ id:"qui2", name:"Química General II", credits:4, sem:2, pre:["qui1"], co:[] },
+{ id:"introInnov", name:"Introducción a la Innovación", credits:2, sem:2, pre:["introIQ"], co:[] },
+
+/* SEMESTRE 3 */
+{ id:"cal3", name:"Cálculo III", credits:5, sem:3, pre:["cal2","alg2"], co:[] },
+{ id:"edo", name:"Ecuaciones Diferenciales", credits:4, sem:3, pre:["cal2","alg2"], co:[] },
+{ id:"mec", name:"Mecánica", credits:4, sem:3, pre:["cal2","alg2"], co:["cal3"] },
+{ id:"bme", name:"Balance de Materia y Energía", credits:4, sem:3, pre:["qui2"], co:[] },
+{ id:"prog", name:"Programación", credits:3, sem:3, pre:[], co:[] },
+{ id:"comp1", name:"Complementaria 1", credits:3, sem:3, pre:[], co:[] },
+
+/* SEMESTRE 4 */
+{ id:"termo", name:"Termodinámica", credits:4, sem:4, pre:["cal2","alg2","fis2","bme"], co:[] },
+{ id:"mecflu", name:"Mecánica de Fluidos", credits:5, sem:4, pre:["mec","cal3","edo"], co:[] },
+{ id:"taller1", name:"Taller de Integración 1", credits:2, sem:4, pre:["cal2","alg2","fis2","bme","introIQ"], co:[] },
+{ id:"calcnum", name:"Cálculo Numérico", credits:4, sem:4, pre:["cal3","prog","edo"], co:[] },
+{ id:"comp2", name:"Complementaria 2", credits:6, sem:4, pre:[], co:[] },
+
+/* SEMESTRE 5 */
+{ id:"org", name:"Química Orgánica", credits:4, sem:5, pre:["qui2"], co:[] },
+{ id:"termmez", name:"Termodinámica de Mezclas", credits:4, sem:5, pre:["termo"], co:[] },
+{ id:"transcal", name:"Transferencia de Calor", credits:4, sem:5, pre:["mecflu"], co:[] },
+{ id:"lider", name:"Liderazgo y Comunicación", credits:3, sem:5, pre:[], co:[] },
+{ id:"pract", name:"Práctica Laboral", credits:2, sem:5, pre:[], co:[] },
+{ id:"comp3", name:"Complementaria 3", credits:2, sem:5, pre:[], co:[] },
+
+/* SEMESTRE 6 */
+{ id:"estad", name:"Estadística y Probabilidades", credits:4, sem:6, pre:["cal2","alg2"], co:[] },
+{ id:"termsup", name:"Termodinámica de Superficies", credits:4, sem:6, pre:["termmez","mecflu"], co:["transmat"] },
+{ id:"transmat", name:"Transferencia de Materia", credits:4, sem:6, pre:["termmez"], co:["termsup"] },
+{ id:"innov", name:"Innovación", credits:3, sem:6, pre:[], co:[] },
+{ id:"taller2", name:"Taller de Integración 2", credits:2, sem:6, pre:["transcal"], co:[] },
+{ id:"comp4", name:"Complementaria 4", credits:2, sem:6, pre:[], co:[] },
+
+/* SEMESTRE 7 */
+{ id:"econ", name:"Economía", credits:4, sem:7, pre:[], co:[] },
+{ id:"react", name:"Diseño de Reactores Químicos", credits:5, sem:7, pre:["termsup"], co:[] },
+{ id:"dinam", name:"Dinámica y Control de Procesos", credits:5, sem:7, pre:["transmat"], co:["react"] },
+{ id:"labproc", name:"Laboratorio de Procesos Químicos", credits:3, sem:7, pre:["transmat","transcal"], co:["react"] },
+{ id:"ing1", name:"Inglés Comunicativo 1", credits:3, sem:7, pre:[], co:[] },
+
+/* SEMESTRE 8 */
+{ id:"opsep", name:"Operaciones de Separación", credits:3, sem:8, pre:["transmat"], co:[] },
+{ id:"sint", name:"Síntesis y Optimización de Procesos", credits:4, sem:8, pre:["react","transmat"], co:[] },
+{ id:"ing2", name:"Inglés Comunicativo 2", credits:3, sem:8, pre:["ing1"], co:[] },
+{ id:"taller3", name:"Taller de Integración 3", credits:2, sem:8, pre:["react"], co:[] },
+{ id:"elec1", name:"Electiva 1", credits:6, sem:8, pre:[], co:[] },
+
+/* SEMESTRE 9 */
+{ id:"proy", name:"Formulación y Evaluación de Proyectos", credits:4, sem:9, pre:[], co:[] },
+{ id:"proy1", name:"Proyecto 1", credits:4, sem:9, pre:["sint"], co:[] },
+{ id:"sust", name:"Introducción a la Sustentabilidad", credits:3, sem:9, pre:[], co:[] },
+{ id:"ing3", name:"Inglés Comunicativo 3", credits:3, sem:9, pre:["ing2"], co:[] },
+{ id:"elec2", name:"Electiva 2", credits:6, sem:9, pre:[], co:[] },
+
+/* SEMESTRE 10 */
+{ id:"gest", name:"Gestión de Empresas", credits:3, sem:10, pre:[], co:[] },
+{ id:"proy2", name:"Proyecto 2", credits:4, sem:10, pre:["proy1"], co:[] },
+{ id:"riesgos", name:"Gestión de Riesgos Químicos", credits:3, sem:10, pre:[], co:[] },
+{ id:"ing4", name:"Inglés Comunicativo 4", credits:3, sem:10, pre:["ing3"], co:[] },
+{ id:"elec3", name:"Electiva 3", credits:6, sem:10, pre:[], co:[] },
+
+/* SEMESTRE 11 */
+{ id:"pracprof", name:"Práctica Profesional", credits:4, sem:11, pre:[], co:[] },
+{ id:"memoria", name:"Memoria de Título", credits:20, sem:11, pre:[], co:[] }
+];
+
+const state = JSON.parse(localStorage.getItem("malla")) || {};
+
+function canUnlock(course) {
+    return course.pre.every(p => state[p]);
+}
+
+function isCoreqSatisfied(course) {
+    return course.co.every(c => state[c]);
+}
+
+function toggleCourse(id) {
+    const course = courses.find(c => c.id === id);
+    if (!canUnlock(course)) return;
+
+    if (course.co.length > 0) {
+        course.co.forEach(c => state[c] = !state[id]);
+    }
+    state[id] = !state[id];
+    localStorage.setItem("malla", JSON.stringify(state));
+    render();
+}
+
+function render() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    let totalCredits = courses.reduce((a,b)=>a+b.credits,0);
+    let approvedCredits = 0;
+    let approvedCount = 0;
+
+    for (let s = 1; s <= 11; s++) {
+        const box = document.createElement("div");
+        box.className = "semester";
+        box.innerHTML = `<h2>Semestre ${s}</h2>`;
+
+        courses.filter(c => c.sem === s).forEach(c => {
+            const div = document.createElement("div");
+            div.className = "course";
+
+            const approved = state[c.id];
+            if (approved) {
+                div.classList.add("completed");
+                approvedCredits += c.credits;
+                approvedCount++;
+            } else if (!canUnlock(c)) {
+                div.classList.add("locked");
+            } else if (c.co.length > 0) {
+                div.classList.add("coreq");
+            } else {
+                div.classList.add("available");
+            }
+
+            div.innerHTML = `${c.name}<br><small>${c.credits} créditos</small>`;
+            div.onclick = () => toggleCourse(c.id);
+            box.appendChild(div);
+        });
+
+        grid.appendChild(box);
+    }
+
+    document.getElementById("stats").innerHTML =
+        `Ramos aprobados: ${approvedCount} / ${courses.length} | Créditos aprobados: ${approvedCredits} / ${totalCredits} | Avance: ${Math.round((approvedCredits/totalCredits)*100)}%`;
+}
+
+render();
+</script>
+
+</body>
+</html>
